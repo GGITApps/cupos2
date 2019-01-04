@@ -32,7 +32,7 @@ app.get('/', function (req, res) {
 
     var dateNow = new Date();
     var respuesta;
-    if (dateNow.getMinutes() - date.getMinutes() >= 1) {
+    if (dateNow.getMinutes() - date.getMinutes() >= 3) {
         fetch('https://senecacupos.herokuapp.com/')
             .then(res => res.json())
             .then(body => {
@@ -52,7 +52,7 @@ app.get('/', function (req, res) {
                 let cupos = arregloPrint.filter(x => {
                     return x[0] == nrc
                 })
-                respuesta = cupos;
+                respuesta = cupos[0];
                 res.send(respuesta)
             })
             .catch(x => {
