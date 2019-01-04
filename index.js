@@ -86,7 +86,7 @@ app.get('/', function (req, res) {
             <p>
             `)
         } else {
-            res.send(respuesta)
+            res.send(respuesta[0])
         }
 
 
