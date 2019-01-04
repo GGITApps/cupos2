@@ -58,7 +58,9 @@ app.get('/', function (req, res) {
             .catch(x => {
                 console.log(x)
                 res.send(`
-<span style='color:#cc0000;'>Lo sentimos ocurrio un error recuperando los cupos.
+<span style='color:#cc0000;'>Lo sentimos ocurrio un error recuperando los cupos. 
+<br>
+Intenta de nuevo porfavor!
 </span>
 </p>
 <br>
@@ -70,11 +72,11 @@ app.get('/', function (req, res) {
 
     } else {
         let cupos = JSON.parse(fs.readFileSync('json1.json', 'utf8'));
-        console.log(cupos)
+        
         respuesta = cupos.filter(x => {
             return x[0] == req.query.nrc
         })
-        console.log(respuesta)
+        
         if (respuesta == "") {
             res.send(`
             <span style='color:#cc0000;'>Ingresa un NRC Valido
