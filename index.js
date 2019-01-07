@@ -34,9 +34,9 @@ app.get('/', function (req, res) {
     var respuesta;
     if (dateNow.getMinutes() - date.getMinutes() >= 3) {
         fetch('https://senecacupos.herokuapp.com/')
-            .then(res => res.json())
+            .then(res => res.trext())
             .then(body => {
-                materiasTemp = body
+                materiasTemp = JSON.parse(body)
                 let lectura = JSON.parse(fs.readFileSync('json1.json', 'utf8'));
                 materiasTemp.records.forEach(element => {
                     //[nrc,capacidad,disponible]
