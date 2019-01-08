@@ -9,7 +9,7 @@ var http = require("http");
 
 
 setInterval(function() {
-    http.get("https://donde-estan-mis-cupos-uniandes.herokuapp.com/");
+    http.get("http://donde-estan-mis-cupos-uniandes.herokuapp.com/");
 }, 300000);
 
 app.use(function (req, res, next) {
