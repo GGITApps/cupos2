@@ -32,50 +32,49 @@ app.get('/', function (req, res) {
 
     var dateNow = new Date();
     var respuesta;
-    if (dateNow.getMinutes() - date.getMinutes() >= 3) {
+    if (Math.floor(dateNow.getMinutes() - date.getMinutes()) >= 0) {
+
         fetch('https://senecacupos.herokuapp.com/')
-            .then(res => res.trext())
+            .then(res => res.text())
             .then(body => {
-                materiasTemp = JSON.parse(body)
+                materiasTemp = JSON.parse(body);
                 let lectura = JSON.parse(fs.readFileSync('json1.json', 'utf8'));
                 materiasTemp.records.forEach(element => {
                     //[nrc,capacidad,disponible]
-                    let objectoAnterior = lectura.filter(x => {
-                        return element.nrc == x[0]
-                    })
+                    console.log(element.nrc);
+                    let objetoAnterior = lectura.filter(x => x[0] == element.nrc);
+                    //let objetoAnterior = lectura.find(x => x[0] == element.nrc);
                     let objeto = [
-                        element.nrc, objectoAnterior[0][1], element.cupos
+                        element.nrc, objetoAnterior[0][1], element.cupos
                     ]
                     arregloPrint.push(objeto);
-                })
-                pintarJson()
-                let cupos = arregloPrint.filter(x => {
-                    return x[0] == nrc
-                })
+                });
+                pintarJson();
+                let cupos = arregloPrint.filter(x => x[0] == nrc);
                 respuesta = cupos[0];
-                res.send(respuesta)
+                res.send(respuesta);
             })
             .catch(x => {
-                console.log(x)
+                console.log(x);
                 res.send(`
-<span style='color:#cc0000;'>Lo sentimos ocurrio un error recuperando los cupos. 
-<br>
-Intenta de nuevo porfavor!
-</span>
-</p>
-<br>
-<center>
-<img src='https://media.giphy.com/media/KlrMS4vyq5KSY/giphy.gif' style='width:400px;'></center>
-<p>
-`)
-            })
+                <span style='color:#cc0000;'>Lo sentimos ocurrio un error recuperando los cupos. 
+                <br>
+                Intenta de nuevo porfavor!
+                </span>
+                </p>
+                <br>
+                <center>
+                <img src='https://media.giphy.com/media/KlrMS4vyq5KSY/giphy.gif' style='width:400px;'></center>
+                <p>
+                `);
+            });
 
     } else {
         let cupos = JSON.parse(fs.readFileSync('json1.json', 'utf8'));
         
         respuesta = cupos.filter(x => {
             return x[0] == req.query.nrc
-        })
+        });
         
         if (respuesta == "") {
             res.send(`
@@ -86,9 +85,9 @@ Intenta de nuevo porfavor!
             <center>
             <img src='https://media.giphy.com/media/mq5y2jHRCAqMo/giphy.gif' style='width:400px;'></center>
             <p>
-            `)
+            `);
         } else {
-            res.send(respuesta[0])
+            res.send(respuesta[0]);
         }
 
 
@@ -98,7 +97,7 @@ Intenta de nuevo porfavor!
     //errorHandling
 
 
-})
+});
 
 
 
@@ -106,7 +105,7 @@ function pintarJson() {
     fs.writeFile("json1.json", JSON.stringify(arregloPrint), 'utf8',
         x => {
             if (x) {
-                return console.log(err);
+                return console.log(x.message);
             }
 
 
@@ -114,5 +113,5 @@ function pintarJson() {
 }
 //cambios
 app.listen(port, function () {
-    console.log('App listening on port ' + port)
+    console.log('App listening on port ' + port);
 })
