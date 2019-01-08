@@ -3,81 +3,36 @@ const fs = require('fs');
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 8080;
+var http = require("http");
+
+
+
+
+setInterval(function() {
+    http.get("https://donde-estan-mis-cupos-uniandes.herokuapp.com/");
+}, 300000);
 
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
-var date = new Date();
-fs.writeFile("time.json", JSON.stringify(date), 'utf8',
-    x => {
-        if (x) {
-            return console.log(err);
-        }
-    })
-var materiasTemp = {};
+
+var refresco = {};
 var arregloPrint = [];
 
 
-
-
-
-
 app.get('/', function (req, res) {
-    var nrc = req.query.nrc;
-    date = new Date(
-        JSON.parse(fs.readFileSync('time.json', 'utf8'))
-    )
+    let nrc = req.query.nrc;
+    try {
 
-    var dateNow = new Date();
-    var respuesta;
-    if (dateNow.getMinutes() - date.getMinutes() >= 3) {
-        fetch('https://senecacupos.herokuapp.com/')
-            .then(res => res.json())
-            .then(body => {
-                materiasTemp = body
-                let lectura = JSON.parse(fs.readFileSync('json1.json', 'utf8'));
-                materiasTemp.records.forEach(element => {
-                    //[nrc,capacidad,disponible]
-                    let objectoAnterior = lectura.filter(x => {
-                        return element.nrc == x[0]
-                    })
-                    let objeto = [
-                        element.nrc, objectoAnterior[0][1], element.cupos
-                    ]
-                    arregloPrint.push(objeto);
-                })
-                pintarJson()
-                let cupos = arregloPrint.filter(x => {
-                    return x[0] == nrc
-                })
-                respuesta = cupos[0];
-                res.send(respuesta)
-            })
-            .catch(x => {
-                console.log(x)
-                res.send(`
-<span style='color:#cc0000;'>Lo sentimos ocurrio un error recuperando los cupos. 
-<br>
-Intenta de nuevo porfavor!
-</span>
-</p>
-<br>
-<center>
-<img src='https://media.giphy.com/media/KlrMS4vyq5KSY/giphy.gif' style='width:400px;'></center>
-<p>
-`)
-            })
+        let lectura = JSON.parse(fs.readFileSync('json1.json', 'utf8'));
 
-    } else {
-        let cupos = JSON.parse(fs.readFileSync('json1.json', 'utf8'));
-        
-        respuesta = cupos.filter(x => {
-            return x[0] == req.query.nrc
-        })
-        
-        if (respuesta == "") {
+        let buscado = lectura.find(x => x[0] == nrc);
+        if (buscado !== undefined) {
+            res.send(buscado);
+        }
+        else {
             res.send(`
             <span style='color:#cc0000;'>Ingresa un NRC Valido
             </span>
@@ -86,33 +41,89 @@ Intenta de nuevo porfavor!
             <center>
             <img src='https://media.giphy.com/media/mq5y2jHRCAqMo/giphy.gif' style='width:400px;'></center>
             <p>
-            `)
-        } else {
-            res.send(respuesta[0])
+            `);
         }
-
-
-
+    }
+    catch (error) {
+        res.send(`
+        <span style='color:#cc0000;'>Lo sentimos ocurrio un error recuperando los cupos. 
+        <br>
+        Intenta de nuevo porfavor!
+        </span>
+        </p>
+        <br>
+        <center>
+        <img src='https://media.giphy.com/media/KlrMS4vyq5KSY/giphy.gif' style='width:400px;'></center>
+        <p>
+        `);
     }
 
-    //errorHandling
+});
 
-
-})
-
-
-
+/**
+ * Realiza la escritura del json cacheado con cupos actualizados
+ */
 function pintarJson() {
     fs.writeFile("json1.json", JSON.stringify(arregloPrint), 'utf8',
         x => {
             if (x) {
                 return console.log(err);
             }
-
-
-        })
+        });
 }
-//cambios
+
+
 app.listen(port, function () {
-    console.log('App listening on port ' + port)
-})
+    console.log('App listening on port ' + port);
+});
+
+/**
+ * llama el API :v
+ */
+function llamarAPI()
+{
+    arregloPrint = [];
+    refresco={};
+    let misHeaders = { 'Referer': 'https://registroapps.uniandes.edu.co/oferta_cursos/index.php' };
+
+    fetch('https://registroapps.uniandes.edu.co/oferta_cursos/api/get_courses.php?term=201910&ptrm=1&campus=&attr=&attrs=', { headers: misHeaders })
+        .then(ans => ans.json())
+        .then(body => {
+            refresco = body;
+            refresco.records.forEach(element => {
+
+                //[nrc,capacidad,disponible]
+                let objeto = [element.nrc, element.limit, element.empty];
+                arregloPrint.push(objeto);
+            });
+            fetch('https://registroapps.uniandes.edu.co/oferta_cursos/api/get_courses.php?term=201910&ptrm=8A&campus=&attr=&attrs=', { headers: misHeaders })
+                .then(ans => ans.json())
+                .then(body => {
+                    refresco = body;
+                    refresco.records.forEach(element => {
+
+                        //[nrc,capacidad,disponible]
+                        let objeto = [element.nrc, element.limit, element.empty];
+                        arregloPrint.push(objeto);
+                    });
+                    fetch('https://registroapps.uniandes.edu.co/oferta_cursos/api/get_courses.php?term=201910&ptrm=8B&campus=&attr=&attrs=', { headers: misHeaders })
+                        .then(ans => ans.json())
+                        .then(body => {
+                            refresco = body;
+                            refresco.records.forEach(element => {
+
+                                //[nrc,capacidad,disponible]
+                                let objeto = [element.nrc, element.limit, element.empty];
+                                arregloPrint.push(objeto);
+                            });
+                            pintarJson();
+                            llamarAPI();
+                            console.log("acabé")
+                        })
+                        .catch(console.log());
+                })
+                .catch(console.log());
+        })
+        .catch(console.log());
+}
+llamarAPI();
