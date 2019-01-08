@@ -6,8 +6,6 @@ const port = process.env.PORT || 8080;
 var http = require("http");
 
 
-
-
 setInterval(function() {
     http.get("http://donde-estan-mis-cupos-uniandes.herokuapp.com/");
 }, 300000);
@@ -34,27 +32,27 @@ app.get('/', function (req, res) {
         }
         else {
             res.send(`
-            <span style='color:#cc0000;'>Ingresa un NRC Valido
+            <span style='color:#cc0000;'>Ingresa un NRC válido.
             </span>
-            </p>
+            <p>
             <br>
             <center>
-            <img src='https://media.giphy.com/media/mq5y2jHRCAqMo/giphy.gif' style='width:400px;'></center>
-            <p>
+            <img src='https://media.giphy.com/media/mq5y2jHRCAqMo/giphy.gif' style='width:180px;'></center>
+            </p>
             `);
         }
     }
     catch (error) {
         res.send(`
-        <span style='color:#cc0000;'>Lo sentimos ocurrio un error recuperando los cupos. 
+        <span style='color:#cc0000;'>Lo sentimos, ocurrió un error recuperando los cupos. 
         <br>
         Intenta de nuevo porfavor!
         </span>
-        </p>
+        <p>
         <br>
         <center>
-        <img src='https://media.giphy.com/media/KlrMS4vyq5KSY/giphy.gif' style='width:400px;'></center>
-        <p>
+        <img src='https://media.giphy.com/media/KlrMS4vyq5KSY/giphy.gif' style='width:180px;'></center>
+        </p>
         `);
     }
 
@@ -70,6 +68,7 @@ function pintarJson() {
                 return console.log(err);
             }
         });
+    console.log("PINTADO");
 }
 
 
@@ -83,13 +82,14 @@ app.listen(port, function () {
 function llamarAPI()
 {
     arregloPrint = [];
-    refresco={};
+    refresco = {};
     let misHeaders = { 'Referer': 'https://registroapps.uniandes.edu.co/oferta_cursos/index.php' };
 
     fetch('https://registroapps.uniandes.edu.co/oferta_cursos/api/get_courses.php?term=201910&ptrm=1&campus=&attr=&attrs=', { headers: misHeaders })
-        .then(ans => ans.json())
+        .then(ans => ans.text())
         .then(body => {
-            refresco = body;
+            //console.log(body.substr(0, 200));
+            refresco = JSON.parse(body.trim());
             refresco.records.forEach(element => {
 
                 //[nrc,capacidad,disponible]
@@ -97,9 +97,9 @@ function llamarAPI()
                 arregloPrint.push(objeto);
             });
             fetch('https://registroapps.uniandes.edu.co/oferta_cursos/api/get_courses.php?term=201910&ptrm=8A&campus=&attr=&attrs=', { headers: misHeaders })
-                .then(ans => ans.json())
+                .then(ans => ans.text())
                 .then(body => {
-                    refresco = body;
+                    refresco = JSON.parse(body.trim());
                     refresco.records.forEach(element => {
 
                         //[nrc,capacidad,disponible]
@@ -107,23 +107,39 @@ function llamarAPI()
                         arregloPrint.push(objeto);
                     });
                     fetch('https://registroapps.uniandes.edu.co/oferta_cursos/api/get_courses.php?term=201910&ptrm=8B&campus=&attr=&attrs=', { headers: misHeaders })
-                        .then(ans => ans.json())
+                        .then(ans => ans.text())
                         .then(body => {
-                            refresco = body;
+                            refresco = JSON.parse(body.trim());
                             refresco.records.forEach(element => {
 
                                 //[nrc,capacidad,disponible]
                                 let objeto = [element.nrc, element.limit, element.empty];
                                 arregloPrint.push(objeto);
                             });
-                            pintarJson();
-                            llamarAPI();
-                            console.log("acabé")
+                            fetch('https://registroapps.uniandes.edu.co/oferta_cursos/api/get_courses.php?term=201910&ptrm=D&campus=&attr=&attrs=', { headers: misHeaders })
+                                .then(ans => ans.text())
+                                .then(body => {
+                                    refresco = JSON.parse(body.trim());
+                                    refresco.records.forEach(element => {
+
+                                        //[nrc,capacidad,disponible]
+                                        let objeto = [element.nrc, element.limit, element.empty];
+                                        arregloPrint.push(objeto);
+                                    });
+                                    pintarJson();
+                                    //llamarAPI();
+                                    console.log("DONE");
+                                })
+                                .catch(x => console.log(x));
                         })
-                        .catch(console.log());
+                        .catch(x => console.log(x));
                 })
-                .catch(console.log());
+                .catch(x => console.log(x));
         })
-        .catch(console.log());
+        .catch(x => console.log(x));
 }
+
 llamarAPI();
+setInterval(()=>{
+    llamarAPI();
+}, 216000)
