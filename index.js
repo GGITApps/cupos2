@@ -32,7 +32,7 @@ app.get('/', function (req, res) {
         }
         else {
             res.send(`
-            <span style='color:#cc0000;'>Ingresa un NRC válido.
+            <span style='color:#cc0000;'>Ingresa un NRC válido. (Estamos caídos por un cambio en registro, estamos trabajando para resolverlo)
             </span>
             <p>
             <br>
