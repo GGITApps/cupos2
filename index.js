@@ -102,4 +102,4 @@ function llamarAPI()
 llamarAPI();
 setInterval(()=>{
     llamarAPI();
-}, 60000)
+}, 80000)
