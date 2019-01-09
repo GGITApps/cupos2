@@ -90,6 +90,9 @@ function llamarAPI()
             refresco = JSON.parse(body.trim());
             if (refresco === undefined || refresco.records.length == 0 ) {
                 console.log("SOMETHING'S WRONG...");
+                let objeto = ['','',''];
+                arregloPrint.push(objeto);
+                pintarJson();
             }
             else{
                 refresco.records.forEach(element => {
