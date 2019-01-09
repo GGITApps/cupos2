@@ -6,9 +6,9 @@ const port = process.env.PORT || 8080;
 var http = require("http");
 
 
-setInterval(function() {
-    http.get("http://donde-estan-mis-cupos-uniandes.herokuapp.com/");
-}, 300000);
+// setInterval(function() {
+//     http.get("http://donde-estan-mis-cupos-uniandes.herokuapp.com/");
+// }, 300000);
 
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -107,7 +107,7 @@ function llamarAPI()
         .catch(x => console.log(x));
 }
 
-llamarAPI();
-setInterval(()=>{
-    llamarAPI();
-}, 60000)
+// llamarAPI();
+// setInterval(()=>{
+//     llamarAPI();
+// }, 60000)
