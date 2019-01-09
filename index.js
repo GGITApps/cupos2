@@ -88,13 +88,18 @@ function llamarAPI()
         .then(ans => ans.text())
         .then(body => {
             refresco = JSON.parse(body.trim());
-            refresco.records.forEach(element => {
-                //[nrc,capacidad,disponible]
-                let objeto = [element.nrc, element.limit, element.cupos];
-                arregloPrint.push(objeto);
-            });
-            pintarJson();
-            console.log('DONE');
+            if (refresco !== undefined || refresco.records.length() > 0 ) {
+                refresco.records.forEach(element => {
+                    //[nrc,capacidad,disponible]
+                    let objeto = [element.nrc, element.limit, element.cupos];
+                    arregloPrint.push(objeto);
+                });
+                pintarJson();
+                console.log('DONE');
+            }
+            else{
+                console.log("SOMETHING'S WRONG...");
+            }
         })
         .catch(x => console.log(x));
 }
