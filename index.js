@@ -24,7 +24,7 @@ app.get('/', function (req, res) {
     let nrc = req.query.nrc;
     try {
 
-        let lectura = JSON.parse(fs.readFileSync('json1.json', 'utf8'));
+        let lectura = JSON.parse(fs.readFileSync('cache.json', 'utf8'));
 
         let buscado = lectura.find(x => x[0] == nrc);
         if (buscado !== undefined) {
@@ -62,13 +62,13 @@ app.get('/', function (req, res) {
  * Realiza la escritura del json cacheado con cupos actualizados
  */
 function pintarJson() {
-    fs.writeFile("json1.json", JSON.stringify(arregloPrint), 'utf8',
+    fs.writeFile('cache.json', JSON.stringify(arregloPrint), 'utf8',
         x => {
             if (x) {
                 return console.log(err);
             }
         });
-    console.log("PINTADO");
+    console.log('PINTADO');
 }
 
 
@@ -83,58 +83,18 @@ function llamarAPI()
 {
     arregloPrint = [];
     refresco = {};
-    let misHeaders = { 'Referer': 'https://registroapps.uniandes.edu.co/oferta_cursos/index.php' };
 
-    fetch('https://registroapps.uniandes.edu.co/oferta_cursos/api/get_courses.php?term=201910&ptrm=1&campus=&attr=&attrs=', { headers: misHeaders })
+    fetch('https://senecacupos.herokuapp.com/')
         .then(ans => ans.text())
         .then(body => {
-            //console.log(body.substr(0, 200));
             refresco = JSON.parse(body.trim());
             refresco.records.forEach(element => {
-
                 //[nrc,capacidad,disponible]
-                let objeto = [element.nrc, element.limit, element.empty];
+                let objeto = [element.nrc, element.limit, element.cupos];
                 arregloPrint.push(objeto);
             });
-            fetch('https://registroapps.uniandes.edu.co/oferta_cursos/api/get_courses.php?term=201910&ptrm=8A&campus=&attr=&attrs=', { headers: misHeaders })
-                .then(ans => ans.text())
-                .then(body => {
-                    refresco = JSON.parse(body.trim());
-                    refresco.records.forEach(element => {
-
-                        //[nrc,capacidad,disponible]
-                        let objeto = [element.nrc, element.limit, element.empty];
-                        arregloPrint.push(objeto);
-                    });
-                    fetch('https://registroapps.uniandes.edu.co/oferta_cursos/api/get_courses.php?term=201910&ptrm=8B&campus=&attr=&attrs=', { headers: misHeaders })
-                        .then(ans => ans.text())
-                        .then(body => {
-                            refresco = JSON.parse(body.trim());
-                            refresco.records.forEach(element => {
-
-                                //[nrc,capacidad,disponible]
-                                let objeto = [element.nrc, element.limit, element.empty];
-                                arregloPrint.push(objeto);
-                            });
-                            fetch('https://registroapps.uniandes.edu.co/oferta_cursos/api/get_courses.php?term=201910&ptrm=D&campus=&attr=&attrs=', { headers: misHeaders })
-                                .then(ans => ans.text())
-                                .then(body => {
-                                    refresco = JSON.parse(body.trim());
-                                    refresco.records.forEach(element => {
-
-                                        //[nrc,capacidad,disponible]
-                                        let objeto = [element.nrc, element.limit, element.empty];
-                                        arregloPrint.push(objeto);
-                                    });
-                                    pintarJson();
-                                    //llamarAPI();
-                                    console.log("DONE");
-                                })
-                                .catch(x => console.log(x));
-                        })
-                        .catch(x => console.log(x));
-                })
-                .catch(x => console.log(x));
+            pintarJson();
+            console.log('DONE');
         })
         .catch(x => console.log(x));
 }
@@ -142,4 +102,4 @@ function llamarAPI()
 llamarAPI();
 setInterval(()=>{
     llamarAPI();
-}, 216000)
+}, 60000)
