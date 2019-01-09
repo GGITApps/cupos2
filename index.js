@@ -88,7 +88,10 @@ function llamarAPI()
         .then(ans => ans.text())
         .then(body => {
             refresco = JSON.parse(body.trim());
-            if (refresco !== undefined || refresco.records.length() > 0 ) {
+            if (refresco === undefined || refresco.records.length == 0 ) {
+                console.log("SOMETHING'S WRONG...");
+            }
+            else{
                 refresco.records.forEach(element => {
                     //[nrc,capacidad,disponible]
                     let objeto = [element.nrc, element.limit, element.cupos];
@@ -96,9 +99,6 @@ function llamarAPI()
                 });
                 pintarJson();
                 console.log('DONE');
-            }
-            else{
-                console.log("SOMETHING'S WRONG...");
             }
         })
         .catch(x => console.log(x));
